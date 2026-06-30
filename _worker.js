@@ -75,6 +75,18 @@ export default {
                 
                 // 处理后台上传更新的请求
                 if (url.pathname === '/api/data') {
+                    // 🛡️ 新增：检查文件大小 (例如限制最大只能上传 1MB)
+                    const contentLength = request.headers.get('content-length');
+                    // 1MB = 1048576 Bytes
+                    if (contentLength && parseInt(contentLength) > 1048576) {
+                        return new Response(JSON.stringify({ 
+                            success: false, 
+                            message: "拒绝接收：上传的配置文件过大（限制 1MB 以内）！" 
+                        }), { 
+                            status: 413, // 413 Payload Too Large
+                            headers: { "Content-Type": "application/json;charset=UTF-8" } 
+                        });
+                    }
                     try {
                         const body = await request.text();
                         JSON.parse(body); // 校验合法性
