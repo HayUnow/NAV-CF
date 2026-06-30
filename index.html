@@ -817,19 +817,49 @@ function toggleAdmin() {
     document.getElementById('adminOverlay').classList.toggle('active');
 }
 
-function downloadJSON() {
-    if (ALL_DATA.length === 0) {
-        showToast("⚠️ 当前无数据可下载", "error");
-        return;
+async function downloadJSON() {
+    const pwd = document.getElementById('adminPwd').value;
+    
+    // 1. 强制要求输入密钥
+    if (!pwd) { 
+        showToast("⚠️ 请先输入管理员密钥", "error"); 
+        return; 
     }
-    const dataStr = JSON.stringify({ categories: ALL_DATA }, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = "data_backup.json";
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    toggleAdmin();
-    showToast("⬇️ 配置文件下载成功", "success");
+    
+    showToast("⏳ 正在验证密钥并下载...", "info");
+
+    try {
+        // 2. 携带密钥向后端发起下载请求
+        const res = await fetch("/api/download", {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${pwd}`
+            }
+        });
+
+        // 3. 验证成功，处理返回的文件流
+        if (res.ok) {
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; 
+            a.download = "data_backup.json";
+            document.body.appendChild(a); 
+            a.click(); 
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toggleAdmin();
+            showToast("⬇️ 配置文件下载成功", "success");
+        } else {
+            // 4. 验证失败，提示错误
+            let resultData = {};
+            try { resultData = await res.json(); } catch(e){}
+            showToast("❌ 下载失败：" + (resultData.message || "密钥错误或未授权"), "error");
+        }
+    } catch (err) {
+        showToast("⚠️ 下载异常：" + err.message, "error");
+    }
 }
 
 function triggerUpload() {
