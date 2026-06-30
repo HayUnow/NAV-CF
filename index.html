@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouYou · Megao</title>
+    <link rel="icon" href="favicon.ico">
+    <style>
+        :root {
+            /* 核心底色：深空渐变 */
+            --bg: #0f172a;
+            --bg-gradient: radial-gradient(ellipse at top, #1e293b 0%, #0f172a 60%, #071020 100%);
+            
+            /* 玻璃质感体系 */
+            --glass-bg: rgba(30, 41, 59, 0.35);
+            --glass-bg-strong: rgba(30, 41, 59, 0.55);
+            --glass-border: rgba(139, 92, 246, 0.25);
+            --glass-border-hover: rgba(99, 102, 241, 0.5);
+            --glass-glow: 0 0 20px rgba(139, 92, 246, 0.15);
+            --glass-glow-hover: 0 0 30px rgba(99, 102, 241, 0.3);
+            
+            /* 文字体系 */
+            --text-primary: #f8fafc;
+            --text-secondary: #e2e8f0;
+            
+            /* 全局统一强调渐变：深浅模式共用同一套渐变视觉 */
+            --accent: #8b5cf6;
+            --accent-hover: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            --shine-color: rgba(255, 255, 255, 0.18);
+            --dydate:#8b5cf6; /*底部年份 和 访问人数 颜色*/
+            --header-h: 60px;
+        }
+
+        .light {
+            /* 浅色模式仅修改背景与玻璃底色，强调渐变体系与深色完全一致 */
+            --bg: #e2e8f0;
+            --bg-gradient: radial-gradient(ellipse at top, #f1f5f9 0%, #e2e8f0 60%, #cbd5e1 100%);
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-bg-strong: rgba(255, 255, 255, 0.8);
+            /* 玻璃边框/发光同步适配紫色调，与渐变统一 */
+            --glass-border: rgba(139, 92, 246, 0.15);
+            --glass-border-hover: rgba(99, 102, 241, 0.35);
+            --glass-glow: 0 0 20px rgba(139, 92, 246, 0.1);
+            --glass-glow-hover: 0 0 25px rgba(99, 102, 241, 0.2);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            /* 强调色与渐变和深色模式完全一致，保证视觉统一 */
+            --accent: #8b5cf6;
+            --accent-hover: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            --shine-color: rgba(255, 255, 255, 0.4);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg-gradient);
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            animation: fadeInBody 0.8s ease;
+        }
+
+        @keyframes fadeInBody { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ===== 顶栏 ===== */
+        .header {
+            height: var(--header-h);
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--glass-glow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between; 
+            padding: 0 24px;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .header-left { display: flex; gap: 12px; align-items: center; }
+
+        .btn-base {
+            padding: 7px 14px;
+            cursor: pointer;
+            border-radius: 8px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-base::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(120deg, transparent, var(--shine-color), transparent);
+            transform: skewX(-25deg);
+            transition: none;
+        }
+        .btn-base:hover { 
+            transform: translateY(-1px); 
+            border-color: var(--glass-border-hover);
+            color: var(--accent-hover);
+            box-shadow: var(--glass-glow-hover);
+        }
+        .btn-base:hover::after {
+            animation: shine 0.7s forwards;
+        }
+
+        .header-right { display: flex; align-items: center; }
+
+        .search-input {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 8px 16px 8px 36px;
+            border-radius: 8px;
+            width: 260px;
+            outline: none;
+            transition: all 0.25s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 16px;
+        }
+        .search-input::placeholder { color: var(--text-secondary); }
+        .search-input:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15), var(--glass-glow);
+        }
+
+        /* ===== 主体布局 ===== */
+        .layout-main {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* ===== 左侧导航 ===== */
+        .navBox {
+            width: 220px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-right: 1px solid var(--glass-border);
+            box-shadow: var(--glass-glow);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .tabs { display: flex; flex-direction: column; gap: 10px; }
+
+        .tab {
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: left;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+        .tab::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -180%; width: 120%; height: 100%;
+            background: linear-gradient(120deg, transparent, var(--shine-color), transparent);
+            transform: skewX(-20deg);
+        }
+        .tab:hover {
+            color: var(--text-primary);
+            border-color: var(--glass-border-hover);
+            box-shadow: var(--glass-glow-hover);
+            transform: translateX(4px);
+        }
+        .tab:hover::after {
+            animation: shine 0.6s forwards;
+        }
+        .tab:active { transform: scale(0.97); }
+        
+        /* 选中态：深浅模式共用同一渐变变量 */
+        .tab.active {
+            background: var(--accent-gradient);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+            transform: translateX(4px);
+        }
+        .tab.active::after { display: none; }
+
+        /* 流光关键帧 */
+        @keyframes shine {
+            0% { left: -120%; }
+            100% { left: 120%; }
+        }
+
+        /* ===== 主内容区域 ===== */
+        .mainContent {
+            flex-grow: 1; 
+            padding: 32px 40px; 
+            overflow-y: auto;
+            background: transparent;
+            position: relative;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        #navContent {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px; 
+            align-content: start; 
+            flex-grow: 1;
+        }
+
+        .group {
+            grid-column: 1 / -1; 
+            margin-top: 28px; 
+            margin-bottom: 8px;
+            font-size: 15px; 
+            font-weight: 600; 
+            color: var(--text-primary);
+            padding-left: 12px;
+            position: relative;
+        }
+        .group::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 3px; height: 16px;
+            border-radius: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .group:first-child { margin-top: 0; }
+
+        /* ===== 右侧链接卡片：hover态深浅模式统一渐变 ===== */
+        .link {
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            height: 52px; 
+            border-radius: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-glow);
+            text-decoration: none;
+            color: var(--text-primary); 
+            font-size: 14px; 
+            text-align: center; 
+            padding: 0 12px;
+            font-weight: 500;
+            position: relative; 
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .link::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -180%; width: 120%; height: 100%;
+            background: linear-gradient(120deg, transparent, var(--shine-color), transparent);
+            transform: skewX(-20deg);
+        }
+        /* hover底色深浅模式完全一致 */
+        .link:hover {
+            background: var(--accent-gradient);
+            color: #ffffff;
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+        }
+        .link:hover::after {
+            animation: shine 0.65s forwards;
+        }
+        .link:active { transform: scale(0.97); }
+
+        /* ===== 侧边时间进度面板 ===== */
+        .panel {
+            position: fixed; 
+            right: 16px; 
+            bottom: 16px; 
+            width: 320px; 
+            padding: 16px;
+            border-radius: 14px; 
+            background: var(--glass-bg-strong); 
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), var(--glass-glow);
+            border: 1px solid var(--glass-border);
+            z-index: 999; 
+            transform: translateY(120%); 
+            opacity: 0; 
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            cursor: move; 
+            user-select: none; 
+            touch-action: none; 
+            color: var(--text-primary);
+        }
+        .panel.show { transform: translateY(0); opacity: 1; }
+        .panel.hide { transform: translateY(120%); opacity: 0; }
+        @media (max-width: 400px) { .panel { width: 280px; } }
+
+        .close { 
+            position: absolute; 
+            right: 12px; 
+            top: 10px; 
+            cursor: pointer; 
+            color: var(--text-secondary);
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .close:hover { color: var(--text-primary); }
+
+        .floatBtn {
+            position: fixed; 
+            right: 20px; 
+            bottom: 20px; 
+            width: 44px; 
+            height: 44px;
+            border-radius: 50%; 
+            background: var(--accent-gradient); 
+            color: #fff; 
+            display: none;
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            z-index: 998;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            transition: transform 0.2s;
+        }
+        .floatBtn:hover { transform: scale(1.05); }
+
+        .clock { 
+            text-align: center; 
+            font-size: 17px; 
+            font-weight: 600; 
+            margin-bottom: 14px; 
+            color: var(--text-primary); 
+        }
+        .bar { 
+            width: 100%; 
+            height: 8px; 
+            background: rgba(0, 0, 0, 0.2); 
+            border: 1px solid var(--glass-border); 
+            margin-bottom: 8px; 
+            overflow: hidden; 
+            border-radius: 4px; 
+        }
+        /* 进度条：深浅模式共用同一渐变 */
+        .bar-inner {
+            height: 100%; 
+            width: 0%;
+            background: var(--accent-gradient);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 1s linear;
+        }
+        .quote { 
+            text-align: center; 
+            margin-top: 16px; 
+            font-size: 13px; 
+            color: var(--text-secondary); 
+            font-weight: bolder;
+        }
+        .panel [id$="Label"] {
+            font-weight: bolder;
+        }
+        .site-footer { 
+            text-align: center; 
+            padding: 20px 0; 
+            font-size: 13px; 
+            color: var(--text-secondary); 
+            margin-top: auto;
+        }
+        .site-footer span#currentYear { color: var(--dydate); font-weight:bolder;}
+        .site-footer span#visitCount { color: var(--dydate); font-weight:bolder;}
+        /* ===== 消息提示框 ===== */
+        .toast-msg {
+            position: fixed; 
+            top: 24px; 
+            left: 50%; 
+            transform: translate(-50%, -30px);
+            background: var(--glass-bg-strong); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 12px 24px; 
+            border-radius: 10px;
+            z-index: 9999; 
+            opacity: 0; 
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3), var(--glass-glow);
+            text-align: center; 
+            max-width: 90vw;
+        }
+        .toast-msg.show { transform: translate(-50%, 0); opacity: 1; }
+        .toast-msg.success { border-bottom: 3px solid #10b981; }
+        .toast-msg.error { border-bottom: 3px solid #ef4444; }
+        .toast-msg.info { border-bottom: 3px solid var(--accent); }
+
+        /* ===== 数据管理弹窗 ===== */
+        .admin-modal {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) scale(0.95);
+            background: var(--glass-bg-strong); 
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            padding: 28px; 
+            border-radius: 14px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5), var(--glass-glow);
+            z-index: 2000; 
+            width: 320px; 
+            text-align: center; 
+            color: var(--text-primary);
+            opacity: 0; 
+            pointer-events: none; 
+            transition: all 0.3s ease;
+        }
+        .admin-modal.active { 
+            opacity: 1; 
+            transform: translate(-50%, -50%) scale(1); 
+            pointer-events: auto; 
+        }
+        .admin-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(4px);
+            z-index: 1999;
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity 0.3s;
+        }
+        .admin-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .admin-btn-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-top: 20px; 
+        }
+        .admin-btn {
+            background: var(--accent-gradient);
+            color: #fff;
+            border: none; 
+            padding: 12px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-weight: 500; 
+            transition: all 0.25s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .admin-btn::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-25deg);
+        }
+        .admin-btn:hover { 
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+            transform: translateY(-1px);
+        }
+        .admin-btn:hover::after {
+            animation: shine 0.7s forwards;
+        }
+        #fileInput { display: none; }
+        
+        #adminPwd {
+            width: 100%; 
+            padding: 10px 12px; 
+            margin-top: 12px; 
+            border-radius: 8px;
+            border: 1px solid var(--glass-border); 
+            background: var(--glass-bg);
+            color: var(--text-primary); 
+            outline: none; 
+            box-sizing: border-box;
+            transition: border-color 0.25s;
+        }
+        #adminPwd:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+        #adminPwd::placeholder { color: var(--text-secondary); }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .layout-main { flex-direction: column; }
+            .navBox { 
+                width: 100%; 
+                height: auto; 
+                padding: 12px 16px; 
+                flex-direction: row; 
+                overflow-x: auto; 
+                border-right: none; 
+                border-bottom: 1px solid var(--glass-border); 
+            }
+            .tabs { flex-direction: row; margin-top: 0; gap: 10px;}
+            .tab { padding: 10px 16px; white-space: nowrap; border-radius: 8px;}
+            .tab:hover { transform: translateY(-2px); }
+            .tab.active { transform: translateY(-2px); }
+            .search-input { width: 160px; }
+            .header { padding: 0 16px; }
+            .mainContent { padding: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <div class="btn-base" onclick="toggleTheme()">🌗 背景切换</div>
+        <div class="btn-base" onclick="toggleAdmin()">⚙️ 数据管理</div>
+    </div>
+    <div class="header-right">
+        <input type="text" id="searchInput" class="search-input" placeholder="搜索书签..." onkeyup="filterLinks()">
+    </div>
+</header>
+
+<div class="layout-main">
+    <div class="navBox">
+        <div class="tabs" id="tabs"></div>
+    </div>
+
+    <div class="mainContent">
+        <div id="navContent"></div>
+        <div class="site-footer">
+            ©<span style="font-weight: bolder; color: var(--dydate);">2021</span> - <span id="currentYear"></span> YouYou · Megao. All rights reserved. | 访问次数: <span id="visitCount">...</span>
+        </div>
+    </div>
+</div>
+
+<div class="panel" id="panel">
+    <div class="close" onclick="hidePanel()">✕</div>
+    <div class="clock" id="clock"></div>
+    <hr style="border-color: var(--glass-border); border-top: none; margin: 12px 0;">
+    <div id="dayLabel" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;"></div>
+    <div class="bar"><div id="dayBar" class="bar-inner"></div></div>
+
+    <div id="weekLabel" style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 4px;"></div>
+    <div class="bar"><div id="weekBar" class="bar-inner"></div></div>
+
+    <div id="monthLabel" style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 4px;"></div>
+    <div class="bar"><div id="monthBar" class="bar-inner"></div></div>
+
+    <div id="yearLabel" style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 4px;"></div>
+    <div class="bar"><div id="yearBar" class="bar-inner"></div></div>
+
+    <p id="quote" class="quote"></p>
+</div>
+<div class="floatBtn" id="floatBtn" onclick="showPanel()">☰</div>
+
+<div class="admin-overlay" id="adminOverlay" onclick="toggleAdmin()"></div>
+<div class="admin-modal" id="adminModal">
+    <h3 style="margin: 0 0 8px; font-size: 18px;">⚙️ 配置数据管理</h3>
+    <p style="font-size:12px; color: var(--text-secondary); margin: 0 0 8px;">用于在无需改动代码的情况下更新网站网址。</p>
+    <input type="password" id="adminPwd" placeholder="上传前请输入管理员密钥...">
+           
+    <div class="admin-btn-group">
+        <button class="admin-btn" onclick="downloadJSON()">📥 下载当前配置 (JSON)</button>
+        <button class="admin-btn" onclick="triggerUpload()">📤 上传覆盖配置 (JSON)</button>
+        <input type="file" id="fileInput" accept=".json" onchange="uploadJSON(event)">
+    </div>
+</div>
+
+<script>
+// ==================== 消息提示系统 ====================
+function showToast(msg, type = 'success') {
+    let toast = document.getElementById('toastMsg');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toastMsg';
+        document.body.appendChild(toast);
+    }
+    
+    if(window.toastTimer) clearTimeout(window.toastTimer);
+    
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = msg;
+    
+    void toast.offsetWidth; 
+    toast.classList.add('show');
+    
+    window.toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// ==================== 数据加载与渲染 ====================
+const API_URL = "/api/data"; 
+let ALL_DATA = [];
+let currentCategoryId = null;
+
+function loadData() {
+    fetch(API_URL)
+        .then(r => r.json())
+        .then(data => {
+            ALL_DATA = data.categories || [];
+            renderTabs();
+            if(ALL_DATA.length > 0) renderCategory(ALL_DATA[0].id); 
+        })
+        .catch(err => {
+            console.warn("API获取失败，降级本地访问");
+            fetch("data.json").then(r => r.json()).then(data => {
+                ALL_DATA = data.categories; renderTabs(); if(ALL_DATA.length > 0) renderCategory(ALL_DATA[0].id);
+            }).catch(e => {
+                console.error("本地数据加载也失败:", e);
+                showToast("❌ 数据加载失败，请检查网络或配置", "error");
+            });
+        });
+}
+
+function renderTabs() {
+    const tabsBox = document.getElementById("tabs");
+    tabsBox.innerHTML = "";
+    ALL_DATA.forEach((cat, index) => {
+        const div = document.createElement("div");
+        div.className = index === 0 ? "tab active" : "tab";
+        div.innerText = cat.name;
+        div.onclick = () => {
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            div.classList.add("active");
+            document.getElementById('searchInput').value = ""; 
+            renderCategory(cat.id);
+        };
+        tabsBox.appendChild(div);
+    });
+}
+
+function renderCategory(catId, searchQuery = "") {
+    currentCategoryId = catId;
+    const box = document.getElementById("navContent");
+    box.innerHTML = "";
+    const category = ALL_DATA.find(c => c.id === catId);
+    if(!category) return;
+
+    category.groups.forEach(group => {
+        const filteredItems = group.items.filter(item => 
+            item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        if (filteredItems.length === 0) return;
+
+        const gTitle = document.createElement("div");
+        gTitle.className = "group";
+        gTitle.innerText = group.name;
+        box.appendChild(gTitle);
+
+        filteredItems.forEach(item => {
+            const a = document.createElement("a");
+            a.className = "link";
+            a.href = item.url;
+            a.target = "_blank";
+            a.innerText = item.name;
+            box.appendChild(a);
+        });
+    });
+}
+
+function filterLinks() {
+    const query = document.getElementById('searchInput').value;
+    if (currentCategoryId) renderCategory(currentCategoryId, query);
+}
+
+function toggleTheme() {
+    document.body.classList.toggle("light");
+    localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+}
+if(localStorage.getItem("theme") === "light") document.body.classList.add("light");
+
+// ==================== 时间与进度条 ====================
+function updateTime() {
+    const n = new Date();
+    const w = "日一二三四五六".charAt(n.getDay());
+    document.getElementById("clock").innerHTML = n.toLocaleString() + " 星期" + w;
+
+    const sec = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
+    const dp = (sec / 86400 * 100).toFixed(2);
+    const h = (sec / 3600).toFixed(2);
+    document.getElementById("dayLabel").innerHTML = `今天已过 ${h} 小时 · ${dp}%`;
+    document.getElementById("dayBar").style.width = dp + "%";
+
+    const d = n.getDay() || 7; 
+    const wp = (((d - 1) * 86400 + sec) / 604800 * 100).toFixed(2); 
+    const wd = (d - 1 + sec / 86400).toFixed(2); 
+    document.getElementById("weekLabel").innerHTML = `本周已过 ${wd} 天 · ${wp}%`;
+    document.getElementById("weekBar").style.width = wp + "%";
+
+    const daysInMonth = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate(); 
+    const mp = (((n.getDate() - 1) * 86400 + sec) / (daysInMonth * 86400) * 100).toFixed(2); 
+    const md = (n.getDate() - 1 + sec / 86400).toFixed(2); 
+    document.getElementById("monthLabel").innerHTML = `本月已过 ${md} 天 · ${mp}%`;
+    document.getElementById("monthBar").style.width = mp + "%";
+
+    const startYear = new Date(n.getFullYear(), 0, 1); 
+    const endYear = new Date(n.getFullYear() + 1, 0, 1); 
+    const yp = ((n - startYear) / (endYear - startYear) * 100).toFixed(2); 
+    const yd = ((n - startYear) / 86400000).toFixed(2); 
+    document.getElementById("yearLabel").innerHTML = `今年已过 ${yd} 天 · ${yp}%`;
+    document.getElementById("yearBar").style.width = yp + "%";
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// ==================== 随机格言库 ====================
+document.getElementById("quote").innerHTML = [
+    "简约，是终极的复杂。",
+    "专注于重要的事。",
+    "细节成就品质。",
+    "高效，源于秩序。",
+    "慢下来，才能走得更远。",
+    "自律即自由，有序即高效。",
+    "生活的美好，在于日常的精致。",
+    "少即是多，简即是丰。",
+    "把每一件简单的事做好，就是不简单。",
+    "时间不语，却回答了所有问题。",
+    "极致的简约，藏着极致的用心。",
+    "秩序，是效率的前提。",
+    "心有山海，静而无边。",
+    "简单的重复，造就不简单的结果。",
+    "每一个平凡的日常，都是连续发生的奇迹。"
+][Math.floor(Math.random() * 15)];
+
+document.getElementById('currentYear').innerText = new Date().getFullYear();
+document.getElementById('visitCount').innerText = (Math.floor(Math.random() * 5000) + 50000).toLocaleString();
+
+// ==================== 拖拽功能 ====================
+const panel = document.getElementById("panel");
+const floatBtn = document.getElementById("floatBtn");
+let isDown = false, startX, startY, panelX, panelY;
+
+function startDrag(e) {
+    if (e.target.classList.contains('close')) return;
+    isDown = true;
+    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+    startX = clientX; startY = clientY;
+    const rect = panel.getBoundingClientRect();
+    panelX = rect.left; panelY = rect.top;
+    panel.style.transition = "none"; 
+}
+
+function drag(e) {
+    if (!isDown) return;
+    if(e.type.includes('touch')) e.preventDefault(); 
+    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+    let newX = panelX + clientX - startX;
+    let newY = panelY + clientY - startY;
+    const maxW = window.innerWidth - panel.offsetWidth;
+    const maxH = window.innerHeight - panel.offsetHeight;
+    newX = Math.max(0, Math.min(newX, maxW));
+    newY = Math.max(0, Math.min(newY, maxH));
+    panel.style.left = newX + "px"; panel.style.top = newY + "px";
+    panel.style.right = "auto"; panel.style.bottom = "auto";
+}
+
+function stopDrag() {
+    isDown = false;
+    panel.style.transition = "opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease"; 
+}
+
+panel.addEventListener('mousedown', startDrag);
+document.addEventListener('mousemove', drag);
+document.addEventListener('mouseup', stopDrag);
+panel.addEventListener('touchstart', startDrag, { passive: false });
+document.addEventListener('touchmove', drag, { passive: false });
+document.addEventListener('touchend', stopDrag);
+
+function hidePanel() {
+    panel.classList.remove("show"); panel.classList.add("hide");
+    setTimeout(() => floatBtn.style.display = "flex", 300);
+}
+function showPanel() {
+    panel.classList.remove("hide"); panel.classList.add("show");
+    floatBtn.style.display = "none";
+}
+
+// ==================== 数据管理 ====================
+function toggleAdmin() {
+    document.getElementById('adminModal').classList.toggle('active');
+    document.getElementById('adminOverlay').classList.toggle('active');
+}
+
+function downloadJSON() {
+    if (ALL_DATA.length === 0) {
+        showToast("⚠️ 当前无数据可下载", "error");
+        return;
+    }
+    const dataStr = JSON.stringify({ categories: ALL_DATA }, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = "data_backup.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toggleAdmin();
+    showToast("⬇️ 配置文件下载成功", "success");
+}
+
+function triggerUpload() {
+    const pwd = document.getElementById('adminPwd').value;
+    if (!pwd) { 
+        showToast("⚠️ 请先输入管理员密钥", "error"); 
+        return; 
+    }
+    document.getElementById('fileInput').click();
+}
+
+function uploadJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const pwd = document.getElementById('adminPwd').value;
+    const reader = new FileReader();
+    
+    reader.onload = async function(e) {
+        let rawContent = e.target.result;
+        rawContent = rawContent.replace(/^\uFEFF/, '');
+        
+        try {
+            JSON.parse(rawContent); 
+        } catch (err) {
+            showToast("❌ 格式错误：文件内容不是规范的 JSON！", "error");
+            document.getElementById('fileInput').value = ''; 
+            return; 
+        }
+            
+        try {
+            showToast("🚀 正在上传更新...", "info");
+            
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pwd}`
+                },
+                body: rawContent
+            });
+            
+            const textResponse = await res.text();
+            let resultData = {};
+            
+            try {
+                resultData = JSON.parse(textResponse);
+            } catch (err) {
+                console.error("服务器返回非 JSON 内容:", textResponse);
+                throw new Error("服务端未返回 JSON 响应。");
+            }
+            
+            if (res.ok) {
+                showToast("🎉 " + (resultData.message || "更新成功！"), "success");
+                toggleAdmin();
+                setTimeout(() => window.location.reload(), 1500); 
+            } else {
+                showToast("❌ 拒绝访问：" + (resultData.message || "密钥错误或未授权"), "error");
+            }
+        } catch (err) {
+            showToast("⚠️ 上传异常：" + err.message, "error");
+        } finally {
+            document.getElementById('fileInput').value = ''; 
+        }
+    };
+    reader.readAsText(file);
+}
+
+window.onload = () => {
+    if (API_URL === "/api/data" && window.location.protocol === 'file:') {
+         ALL_DATA = [
+            {
+                id: 1, name: "常用工具",
+                groups: [
+                    { name: "搜索引擎", items: [{ name: "百度", url: "https://www.baidu.com" }, { name: "必应", url: "https://www.bing.com" }] },
+                    { name: "开发者", items: [{ name: "GitHub", url: "https://github.com" }, { name: "掘金", url: "https://juejin.cn" }] }
+                ]
+            },
+            {
+                id: 2, name: "休闲娱乐",
+                groups: [
+                    { name: "视频", items: [{ name: "Bilibili", url: "https://www.bilibili.com" }, { name: "YouTube", url: "https://www.youtube.com" }] },
+                     { name: "游戏", items: [{ name: "Steam", url: "https://store.steampowered.com/" }] }
+                ]
+            }
+         ];
+         renderTabs();
+         if(ALL_DATA.length > 0) renderCategory(ALL_DATA[0].id);
+    } else {
+        loadData();
+    }
+    setTimeout(() => panel.classList.add("show"), 200);
+};
+</script>
+
+</body>
+</html>
